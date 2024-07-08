@@ -50,7 +50,6 @@ export default function LandingPage() {
                     and Business Rules that helps you make repeatable,
                     explainable, reliable and accurate decisions.
                   </p>
-                  <Button>Login</Button>
                 </Column>
                 <Column md={4} lg={{ span: 8, offset: 8 }} sm={4}>
                   <Image

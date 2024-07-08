@@ -1,10 +1,11 @@
 @use '@carbon/react';
 @use '@carbon/react/scss/breakpoint' as *;
-
 @use '@/components/OwlAgentHeader/owl-agent-header';
 
 @use '@/app/home/landing-page';
-@use '@/app/assistants/assistants-page';
+
+@use '@/app/commons';
+
 /// Remove overrides once Carbon bugs are fixed upstream.
 /// Need grid option to not add page gutters at large viewports, to also use when nesting grids
 /// @link https://github.com/carbon-design-system/carbon/issues/2792

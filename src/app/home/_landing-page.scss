@@ -31,14 +31,11 @@ html {
   //  margin-top: rem(-40px);
 }
 
-.tabs-group-content {
-  padding: $spacing-06 0 $spacing-06 $spacing-06;
-}
-
-.landing-page__subheading {
-  @include type-style('productive-heading-03');
-
-  font-weight: 600;
+.landing-page__r3 {
+  padding-top: $spacing-08;
+  padding-bottom: $spacing-08;
+  padding-left: $spacing-06;
+  @include landing-page-background;
 }
 
 .landing-page__p {
@@ -51,20 +48,14 @@ html {
   }
 }
 
-.landing-page__r3 {
-  padding-top: $spacing-08;
-  padding-bottom: $spacing-08;
-  padding-left: $spacing-06;
-  @include landing-page-background;
-}
-
 .landing-page__label {
   @include type-style('heading-01');
 }
 
-.tabs-group {
-  background-color: $layer-01;
-  padding: 0 $spacing-03;
+.landing-page__subheading {
+  @include type-style('productive-heading-03');
+
+  font-weight: 600;
 }
 
 .landing-page__banner,
@@ -77,6 +68,15 @@ html {
     margin-left: 0;
     margin-right: 0;
   }
+}
+
+.tabs-group {
+  background-color: $layer-01;
+  padding: 0 $spacing-03;
+}
+
+.tabs-group-content {
+  padding: $spacing-06 0 $spacing-06 $spacing-06;
 }
 
 @media (max-width: 672px) {

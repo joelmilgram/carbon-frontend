@@ -36,6 +36,26 @@ const OwlAgentHeader = () => (
             <HeaderMenuItem>Assistants</HeaderMenuItem>
           </Link>
         </HeaderNavigation>
+        <HeaderNavigation aria-label="Agents">
+          <Link href="/agents" passHref legacyBehavior>
+            <HeaderMenuItem>Agents</HeaderMenuItem>
+          </Link>
+        </HeaderNavigation>
+        <HeaderNavigation aria-label="Tools">
+          <Link href="/tools" passHref legacyBehavior>
+            <HeaderMenuItem>Tools</HeaderMenuItem>
+          </Link>
+        </HeaderNavigation>
+        <HeaderNavigation aria-label="Prompts">
+          <Link href="/prompts" passHref legacyBehavior>
+            <HeaderMenuItem>Prompts</HeaderMenuItem>
+          </Link>
+        </HeaderNavigation>
+        <HeaderNavigation aria-label="Documents">
+          <Link href="/documents" passHref legacyBehavior>
+            <HeaderMenuItem>Documents</HeaderMenuItem>
+          </Link>
+        </HeaderNavigation>
         <SideNav
           aria-label="Side navigation"
           expanded={isSideNavExpanded}
@@ -45,6 +65,18 @@ const OwlAgentHeader = () => (
             <HeaderSideNavItems>
               <Link href="/assistants" passHref legacyBehavior>
                 <HeaderMenuItem>Assistants</HeaderMenuItem>
+              </Link>
+              <Link href="/agents" passHref legacyBehavior>
+                <HeaderMenuItem>Agents</HeaderMenuItem>
+              </Link>
+              <Link href="/tools" passHref legacyBehavior>
+                <HeaderMenuItem>Tools</HeaderMenuItem>
+              </Link>
+              <Link href="/prompts" passHref legacyBehavior>
+                <HeaderMenuItem>Prompts</HeaderMenuItem>
+              </Link>
+              <Link href="/documents" passHref legacyBehavior>
+                <HeaderMenuItem>Documents</HeaderMenuItem>
               </Link>
             </HeaderSideNavItems>
           </SideNavItems>

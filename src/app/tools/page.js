@@ -4,13 +4,13 @@ import { Breadcrumb, BreadcrumbItem, Button, Column, Grid, SkeletonText, ToastNo
 
 import React, { useEffect, useState } from 'react';
 import { Octokit } from '@octokit/core';
-import AssistantMap from './AssistantMap';
+import ToolMap from './ToolMap';
 import { Add } from '@carbon/react/icons';
-import Assistant from './Assistant';
+import Tool from './Tool';
 
 const octokitClient = new Octokit({});
 
-function AssistantsPage() {
+function ToolsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState();
   const [rows, setRows] = useState([]);
@@ -18,35 +18,27 @@ function AssistantsPage() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    getAssistants();
+    getTools();
   }, []);
 
-  const getAssistants = async () => {
+  const getTools = async () => {
     try {
-      const res = await octokitClient.request(
-        'GET http://localhost:8000/api/v1/a/assistants',
-        {
-          //per_page: 75,
-          //sort: 'updated',
-          //direction: 'desc',
-        }
-      );
-
+      const res = await octokitClient.request('GET http://localhost:8000/api/v1/a/tools');
       if (res.status === 200) {
         setRows(res.data);
       } else {
-        setError('Error obtaining assistant data (' + res.status + ')');
+        setError('Error obtaining tool data (' + res.status + ')');
       }
     } catch (error) {
-      setError('Error obtaining assistant data:' + error.message);
-      console.error('Error obtaining assistant data:' + error.message);
+      setError('Error obtaining tool data:' + error.message);
+      console.error('Error obtaining tool data:' + error.message);
     }
     setLoading(false);
   }
 
-  const reloadAssistants = () => {
+  const reloadTools = () => {
     setLoading(true);
-    getAssistants();
+    getTools();
   }
 
   return (
@@ -57,11 +49,11 @@ function AssistantsPage() {
             <a href="/">Manage intelligent decision with Hybrid AI</a>
           </BreadcrumbItem>
         </Breadcrumb>
-        <h1 className="landing-page__heading">Assistants</h1>
+        <h1 className="landing-page__heading">Tools</h1>
       </Column>
       <Column lg={16} md={8} sm={4} className="landing-page__banner">
-        <Button renderIcon={Add} iconDescription="Add Assistant" onClick={() => setOpen(true)}>Add Assistant</Button>
-        <Assistant mode="create" openState={open} setOpenState={setOpen} onSuccess={reloadAssistants} setError={setError} />
+        <Button renderIcon={Add} iconDescription="Add Tool" onClick={() => setOpen(true)}>Add Tool</Button>
+        <Tool mode="create" tool={null} tools={rows} openState={open} setOpenState={setOpen} onSuccess={reloadTools} setError={setError} />
       </Column>
 
       {loading && (
@@ -70,13 +62,13 @@ function AssistantsPage() {
         </Column>
       )}
 
-      {!loading && (<AssistantMap rows={rows} setRows={setRows} setError={setError} reloadAssistants={reloadAssistants} />)}
+      {!loading && (<ToolMap rows={rows} setRows={setRows} setError={setError} reloadTools={reloadTools} />)}
 
       <Column lg={16} md={8} sm={4} className="landing-page__banner">
-        {error && (<ToastNotification role="alert" caption={error} timeout={5000} title="Error" subtitle="" />)}
+        {error && (<ToastNotification role="alert" caption={error} timeout={3000} title="Error" subtitle="" />)}
       </Column>
     </Grid>
   );
 }
 
-export default AssistantsPage;
+export default ToolsPage;
