@@ -10,12 +10,16 @@ const octokitClient = new Octokit({});
 export const AssistantMap = ({ rows, setRows, setError, reloadAssistants }) => {
     const [loading, setLoading] = useState(true);
     const [agents, setAgents] = useState([]);
-    const [openPopoverTable, setOpenPopoverTable] = useState([]);
+    const [openPopoverTable, setOpenPopoverTable] = useState([]); // Double entry: row x agents per row
     const [editAssistant, setEditAssistant] = useState(-1);
     const [open, setOpen] = useState(false);
 
     useEffect(() => {
-        setOpenPopoverTable(new Array(rows.length).fill(false));
+        let tab = new Array(rows.length).fill([]);
+        rows.map((row, i) => (
+            tab[i] = new Array(row.agents.length).fill(false)
+        ))
+        setOpenPopoverTable(tab);
 
         // Preload agents
         async function getAgents() {
@@ -36,8 +40,9 @@ export const AssistantMap = ({ rows, setRows, setError, reloadAssistants }) => {
         getAgents();
     }, [rows]);
 
-    const displayPopoverTable = (index, open) => {
-        const newOpenPopoverTable = openPopoverTable.map((item, i) => (i === index ? open : false));
+    const displayPopoverTable = (assistantIndex, agentIndex, open) => {
+        const newOpenPopoverTable = openPopoverTable.map((tab, i) => (
+            tab.map((item, j) => ((i === assistantIndex) && (j === agentIndex) ? open : false))))
         setOpenPopoverTable(newOpenPopoverTable);
     }
 
@@ -101,6 +106,41 @@ export const AssistantMap = ({ rows, setRows, setError, reloadAssistants }) => {
                     <div className="card-item-id">{row.assistant_id}</div>
                     <div className="card-description">{row.description}</div>
                     <div className="card-class-name" title="Assistant's class name">{row.class_name}</div>
+
+                    {(row.agents && row.agents.length > 0) && (
+                        <div className="card-description">Agents:
+                            <ul>
+                                {row.agents.map((agentId, j) => (
+                                    agents.filter(agent => agent.agent_id === agentId).map((agent, k) => (
+                                        <li key={k}>
+                                            <Popover title="Display agent details" align="bottom-left" open={openPopoverTable[i][j]} >
+                                                <a onClick={() => displayPopoverTable(i, j, true)}>{agentId}</a>
+                                                <PopoverContent className="card-popover-content">
+                                                    <IconButton label="Close" renderIcon={Close} align="top-right" kind="ghost" onClick={() => displayPopoverTable(i, j, false)} />
+                                                    <div className="card-name">{agentId}</div>
+                                                    <div className="card-name">{agent.name}</div>
+                                                    <div className="card-class-name">Class name: {agent?.class_name}</div>
+                                                    <div className="card-description">{agent?.description}</div>
+                                                    <div className="card-detail">LLM: {agent?.modelName}</div>
+                                                    <div className="card-detail">Prompt ref: {agent?.prompt_ref}</div>
+                                                    <div className="card-detail">Temperature: {agent?.temperature}</div>
+                                                    <div className="card-detail">Top K: {agent?.top_k}</div>
+                                                    <div className="card-detail">Top P: {agent?.top_p}</div>
+                                                    {(agent.tools && agent.tools.length > 0) && (
+                                                        <div className="card-description">Tools:
+                                                            <ul>
+                                                                {agent.tools.map((tool, l) => (
+                                                                    <li key={l}>{tool}</li>
+                                                                ))}
+                                                            </ul>
+                                                        </div>)}
+                                                </PopoverContent>
+                                            </Popover>
+                                        </li>
+                                    ))))}
+                            </ul>
+                        </div>)}
+
                     {agents.filter(agent => agent.agent_id === row.agent_id).map((agent, j) => (
                         <div key={j} className="card-item-id">
                             Agent: <Popover title="Display agent details" align="bottom-left" open={openPopoverTable[i]} >

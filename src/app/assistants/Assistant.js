@@ -1,4 +1,4 @@
-import { Dropdown, DropdownSkeleton, Modal, Select, SelectItem, TextArea, TextInput } from '@carbon/react';
+import { DropdownSkeleton, Modal, MultiSelect, Select, SelectItem, TextArea, TextInput } from '@carbon/react';
 import React, { useEffect, useState } from 'react';
 import { QuestionAndAnswer } from '@carbon/pictograms-react';
 import { Octokit } from '@octokit/core';
@@ -14,7 +14,7 @@ const Assistant = ({ mode, assistant, openState, setOpenState, onSuccess, setErr
     const [assistantDescription, setAssistantDescription] = useState("");
     const [className, setClassName] = useState("athena.llm.assistants.BaseAssistant.BaseAssistant");
     const [dropdownItems, setDropdownItems] = useState([]);
-    const [currentItem, setCurrentItem] = useState(""); // selected agent
+    const [agentSelectedItems, setAgentSelectedItems] = useState({ selectedItems: [] });
 
     useEffect(() => {
         if (mode === 'edit') {
@@ -22,9 +22,9 @@ const Assistant = ({ mode, assistant, openState, setOpenState, onSuccess, setErr
             setAssistantName(assistant.name);
             setAssistantDescription(assistant.description);
             setClassName(assistant.class_name);
-            setCurrentItem({ "selectedItem": assistant.agent_id });
+            setAgentSelectedItems({ selectedItems: [...assistant.agents] });
         } else {
-            setCurrentItem("");
+            setAgentSelectedItems({ selectedItems: [] });
         }
         setEmpty(false);
     }, [assistant]);
@@ -61,7 +61,7 @@ const Assistant = ({ mode, assistant, openState, setOpenState, onSuccess, setErr
                 name: assistantName,
                 description: assistantDescription,
                 class_name: className,
-                agent_id: currentItem.selectedItem || (mode === "create" ? "" : assistant.agent_id)
+                agents: agentSelectedItems.selectedItems || (mode === "create" ? "" : assistant.agents)
             });
 
             if (res.status === 200) {
@@ -87,7 +87,7 @@ const Assistant = ({ mode, assistant, openState, setOpenState, onSuccess, setErr
             setAssistantName("");
             setAssistantDescription("");
             setClassName("athena.llm.assistants.BaseAssistant.BaseAssistant");
-            setCurrentItem("");
+            setAgentSelectedItems({ selectedItems: [] });
 
             setOpenState(false);
         }
@@ -136,14 +136,15 @@ const Assistant = ({ mode, assistant, openState, setOpenState, onSuccess, setErr
             <div style={{ display: 'flex', alignItems: 'center', marginTop: '1rem' }} />
 
             {loading && (<DropdownSkeleton />)}
-            {!loading && (<Dropdown
-                key={Math.random().toString()}
-                id="drop-down-agent"
-                label="Agent"
-                titleText="Agent"
+            {!loading && (<MultiSelect id="multi-select-agents"
+                key={agentSelectedItems.selectedItems.join(",")}
+                label="Agents"
+                titleText="Agents"
                 items={dropdownItems}
-                onChange={(selectedItem) => setCurrentItem(selectedItem)}
-                initialSelectedItem={currentItem && currentItem.selectedItem} />)}
+                initialSelectedItems={agentSelectedItems.selectedItems}
+                onChange={(selection) => setAgentSelectedItems(selection)}
+                selectionFeedback="top-after-reopen" />)
+            }
             <div style={{ display: 'flex', alignItems: 'center', marginTop: '1rem' }} />
         </Modal>
     )

@@ -16,12 +16,13 @@
 .card {
     background-color: $layer-01;
     padding: $spacing-05;
-    margin: $spacing-05;
+    margin-top: $spacing-05;
+    margin-bottom: $spacing-05;
     border-radius: $spacing-03;
     box-shadow: 0px 4px 8px rgba($blue-80, 0.1);
     cursor: pointer;
     transition: background-color 1s;
-    min-width: 10rem;
+    min-width: 14rem;
     min-height: 18rem;
 
     &:hover {

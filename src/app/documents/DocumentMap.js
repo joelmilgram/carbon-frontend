@@ -22,22 +22,16 @@ export const DocumentMap = ({ rows }) => {
                     <div className="card-header" >
                         <Documentation style={{ padding: "0.5rem" }} />
                         <OverflowMenu className="card-menu">
-                            <OverflowMenuItem itemText="Edit" />
+                            <OverflowMenuItem itemText="Open" />
                             <OverflowMenuItem hasDivider isDelete itemText="Delete" />
                         </OverflowMenu>
                     </div>
-                    <div className="card-name">{row?.name}</div>
-                    {(row.detail && row.detail.length > 0) && (
-                        <>
-                            <div className="card-description">
-                                <ul>
-                                    {row.detail.map((detail, j) => (
-                                        <li key={j}>{detail.msg}/{detail.type}</li>
-                                    ))}
-                                </ul>
-                            </div>
-                        </>
-                    )}
+                    <div className="card-name">{row?.id}</div>
+                    {Object.keys(row.metadata).map((key, j) => <>
+                        <div className="card-description" key={j}>{key}: {row.metadata[key]}</div>
+                    </>)}
+                    <div className="card-label">Page content:</div>
+                    <div className="card-description">{row.page_content}</div>
                 </AspectRatio>
             </Column>
             ))}
