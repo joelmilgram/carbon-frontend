@@ -83,7 +83,7 @@ export const PromptMap = ({ rows, setRows, setError, reloadPrompts }) => {
 
                             <div className="card-item-id">
                                 <Popover title="Display prompts" align="bottom-left" open={openPopoverTable[i]} >
-                                    <a onClick={() => displayPopoverTable(i, true)}>Prompts</a>
+                                    <a style={{ cursor: "pointer" }} onClick={() => displayPopoverTable(i, true)}>Prompts</a>
                                     <PopoverContent className="card-popover-content">
                                         <IconButton label="Close" renderIcon={Close} align="top-right" kind="ghost" onClick={() => displayPopoverTable(i, false)} />
                                         {row.locales.map((locale, j) => (

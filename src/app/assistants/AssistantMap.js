@@ -99,6 +99,7 @@ export const AssistantMap = ({ rows, setRows, setError, reloadAssistants }) => {
                         <QuestionAndAnswer style={{ padding: "0.5rem" }} />
                         <OverflowMenu className="card-menu" >
                             <OverflowMenuItem itemText="Edit" onClick={() => startEdition(i)} />
+                            <OverflowMenuItem itemText="Launch" onClick={() => alert(row.name)} />
                             <OverflowMenuItem hasDivider isDelete itemText="Delete" onClick={() => deleteAssistant(i)} />
                         </OverflowMenu>
                     </div>
@@ -114,7 +115,7 @@ export const AssistantMap = ({ rows, setRows, setError, reloadAssistants }) => {
                                     agents.filter(agent => agent.agent_id === agentId).map((agent, k) => (
                                         <li key={k}>
                                             <Popover title="Display agent details" align="bottom-left" open={openPopoverTable[i][j]} >
-                                                <a onClick={() => displayPopoverTable(i, j, true)}>{agentId}</a>
+                                                <a style={{ cursor: "pointer" }} onClick={() => displayPopoverTable(i, j, true)}>{agentId}</a>
                                                 <PopoverContent className="card-popover-content">
                                                     <IconButton label="Close" renderIcon={Close} align="top-right" kind="ghost" onClick={() => displayPopoverTable(i, j, false)} />
                                                     <div className="card-name">{agentId}</div>

@@ -20,7 +20,7 @@
     margin-bottom: $spacing-05;
     border-radius: $spacing-03;
     box-shadow: 0px 4px 8px rgba($blue-80, 0.1);
-    cursor: pointer;
+    //    cursor: pointer;
     transition: background-color 1s;
     min-width: 14rem;
     min-height: 18rem;
@@ -29,9 +29,9 @@
         background-color: $blue-20;
     }
 
-    &:active {
-        background-color: $blue-60;
-    }
+    //    &:active {
+    //        background-color: $blue-60;
+    //    }
 }
 
 .card-name {

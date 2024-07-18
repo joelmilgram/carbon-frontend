@@ -98,7 +98,7 @@ export const AgentMap = ({ rows, setRows, setError, reloadAgents }) => {
 
                     <div className="card-item-id">
                         <Popover title="Display LLM parameters" align="bottom-left" open={openPopoverLLMTable[i]} >
-                            <a onClick={() => displayPopoverLLMTable(i, true)}>LLM Parameters</a>
+                            <a style={{ cursor: "pointer" }} onClick={() => displayPopoverLLMTable(i, true)}>LLM Parameters</a>
                             <PopoverContent className="card-popover-content">
                                 <IconButton label="Close" renderIcon={Close} align="top-right" kind="ghost" onClick={() => displayPopoverLLMTable(i, false)} />
                                 <div className="card-detail-large">
@@ -115,7 +115,7 @@ export const AgentMap = ({ rows, setRows, setError, reloadAgents }) => {
 
                     <div className="card-item-id">
                         <Popover title="Display Prompt" align="bottom-left" open={openPopoverPromptTable[i]} >
-                            <a onClick={() => displayPopoverPromptTable(i, true)}>Prompt</a>
+                            <a style={{ cursor: "pointer" }} onClick={() => displayPopoverPromptTable(i, true)}>Prompt</a>
                             <PopoverContent className="card-popover-content">
                                 <IconButton label="Close" renderIcon={Close} align="top-right" kind="ghost" onClick={() => displayPopoverPromptTable(i, false)} />
                                 <div className="card-detail-large">
@@ -132,7 +132,7 @@ export const AgentMap = ({ rows, setRows, setError, reloadAgents }) => {
                     {(row.tools && row.tools.length > 0) && (
                         <div className="card-item-id">
                             <Popover title="Display Tools" align="bottom-left" open={openPopoverToolsTable[i]} >
-                                <a onClick={() => displayPopoverToolsTable(i, true)}>Tools</a>
+                                <a style={{ cursor: "pointer" }} onClick={() => displayPopoverToolsTable(i, true)}>Tools</a>
                                 <PopoverContent className="card-popover-content">
                                     <IconButton label="Close" renderIcon={Close} align="top-right" kind="ghost" onClick={() => displayPopoverToolsTable(i, false)} />
                                     <div className="card-detail-large">
