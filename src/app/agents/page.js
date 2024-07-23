@@ -22,8 +22,15 @@ function AgentsPage() {
   }, []);
 
   const getAgents = async () => {
+    if (!window.__env__) {
+      var script = document.createElement("script");
+      script.src = "../env-config.js";
+      script.async = true;
+      document.head.appendChild(script);
+    }
+    const serverUrl = window._env_.REACT_APP_BACKEND_URL;
     try {
-      const res = await octokitClient.request('GET http://localhost:8000/api/v1/a/agents');
+      const res = await octokitClient.request(`GET ${serverUrl}a/agents`);
       if (res.status === 200) {
         setRows(res.data);
       } else {
@@ -53,7 +60,7 @@ function AgentsPage() {
       </Column>
       <Column lg={16} md={8} sm={4} className="landing-page__banner">
         <Button renderIcon={Add} iconDescription="Add Agent" onClick={() => setOpen(true)}>Add Agent</Button>
-        <Agent mode="create" agent={null} openState={open} setOpenState={setOpen} onSuccess={reloadAgents} setError={setError} />
+        <Agent mode="create" agents={rows} agent={null} openState={open} setOpenState={setOpen} onSuccess={reloadAgents} setError={setError} />
       </Column>
 
       {loading && (

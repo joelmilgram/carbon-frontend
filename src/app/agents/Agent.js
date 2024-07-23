@@ -6,7 +6,7 @@ import { View } from '@carbon/react/icons';
 
 const octokitClient = new Octokit({});
 
-const Agent = ({ mode, agent, openState, setOpenState, onSuccess, setError }) => {
+const Agent = ({ mode, agent, agents, openState, setOpenState, onSuccess, setError }) => {
     // mode = 'create' or 'edit'
     const [loading, setLoading] = useState(true);
     const [empty, setEmpty] = useState(false);
@@ -50,10 +50,11 @@ const Agent = ({ mode, agent, openState, setOpenState, onSuccess, setError }) =>
     }, [agent]);
 
     useEffect(() => {
+        const serverUrl = window._env_.REACT_APP_BACKEND_URL;
         // Preload tools & prompts
         async function getTools() {
             try {
-                const res = await octokitClient.request('GET http://localhost:8000/api/v1/a/tools');
+                const res = await octokitClient.request(`GET ${serverUrl}a/tools`);
                 if (res.status === 200) {
                     const items = res.data.map(tool => (tool.tool_id));
                     setDropdownItemsTools(items);
@@ -70,7 +71,7 @@ const Agent = ({ mode, agent, openState, setOpenState, onSuccess, setError }) =>
 
         async function getPrompts() {
             try {
-                const res = await octokitClient.request('GET http://localhost:8000/api/v1/a/prompts');
+                const res = await octokitClient.request(`GET ${serverUrl}a/prompts`);
                 if (res.status === 200) {
                     const items = res.data.map(prompt => (prompt.name));
                     setDropdownItemsPromptRef(["", ...items]);
@@ -91,13 +92,15 @@ const Agent = ({ mode, agent, openState, setOpenState, onSuccess, setError }) =>
     }, []);
 
     const upsertAgent = async (mode) => {
+        const serverUrl = window._env_.REACT_APP_BACKEND_URL;
+
         let ed = (mode === "create" ? "created" : "updated");
         let ing = (mode === "create" ? "creating" : "updating");
 
         try {
             const res = await octokitClient.request(
-                (mode === "create" ? "POST" : "PUT") + " http://localhost:8000/api/v1/a/agents" + (mode === "edit" ? "/" + agentId : ""), {
-                agent_id: (mode === "create" ? agentName.replace(/ /g, '-').toLowerCase() : agentId),
+                (mode === "create" ? "POST " : "PUT ") + serverUrl + "a/agents" + (mode === "edit" ? "/" + agentId : ""), {
+                agent_id: agentId,
                 name: agentName,
                 description: agentDescription,
                 modelName: agentModelName,
@@ -146,6 +149,25 @@ const Agent = ({ mode, agent, openState, setOpenState, onSuccess, setError }) =>
         }
     }
 
+    const checkAndBuildId = (e) => {
+        setEmpty(!e.target.value);
+        setAgentName(e.target.value);
+        if (mode === "create") {
+            let value = e.target.value.replace(/[^a-zA-Z0-9_À-ÿ]/g, '_').toLowerCase();
+            let unique = true;
+            do {
+                unique = agents.filter((t) => t.agent_id === value).length === 0;
+
+                if (unique) {
+                    setAgentId(value);
+                    break;
+                }
+                value += "_";
+            }
+            while (!unique)
+        }
+    }
+
     return (
         <Modal open={openState}
             onRequestClose={() => setOpenState(false)}
@@ -167,7 +189,7 @@ const Agent = ({ mode, agent, openState, setOpenState, onSuccess, setError }) =>
                 invalid={empty}
                 invalidText="This field cannot be empty"
                 value={agentName}
-                onChange={(e) => { setEmpty(!e.target.value); setAgentName(e.target.value) }} />
+                onChange={checkAndBuildId} />
             <div style={{ display: 'flex', alignItems: 'center', marginTop: '1rem' }} />
 
             <TextArea id="text-area-1"

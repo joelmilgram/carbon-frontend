@@ -22,12 +22,10 @@ export const PromptMap = ({ rows, setRows, setError, reloadPrompts }) => {
     }
 
     const deletePrompt = async (index) => {
-        // TODO: Implement delete prompt Backend API
-        setError("Not yet implemented")
-        return;
+        const serverUrl = window._env_.REACT_APP_BACKEND_URL;
         try {
             const res = await octokitClient.request(
-                `DELETE http://localhost:8000/api/v1/a/prompts/${rows[index].name}`
+                `DELETE ${serverUrl}a/prompts/${rows[index].name}`
             );
             if (res.status === 200) {
                 console.log('Prompt deleted', res.data);
@@ -62,7 +60,7 @@ export const PromptMap = ({ rows, setRows, setError, reloadPrompts }) => {
                 <Prompt mode="edit" prompt={rows[editPrompt]} prompts={rows} openState={open} setOpenState={setOpen} onSuccess={endEdition} setError={setError} />
             )}
             {rows.map((row, i) => (<Column key={i} lg={3} md={2} sm={2} >
-                <AspectRatio className="card" ratio="4x3">
+                <AspectRatio className="card" ratio="4x3" onDoubleClick={() => startEdition(i)}>
                     <div className="card-header" >
                         <AiGovernancePrompt style={{ padding: "0.5rem" }} />
                         <OverflowMenu className="card-menu">

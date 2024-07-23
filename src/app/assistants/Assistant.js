@@ -5,7 +5,7 @@ import { Octokit } from '@octokit/core';
 
 const octokitClient = new Octokit({});
 
-const Assistant = ({ mode, assistant, openState, setOpenState, onSuccess, setError }) => {
+const Assistant = ({ mode, assistant, assistants, openState, setOpenState, onSuccess, setError }) => {
     // mode = 'create' or 'edit'
     const [loading, setLoading] = useState(true);
     const [empty, setEmpty] = useState(false);
@@ -31,9 +31,10 @@ const Assistant = ({ mode, assistant, openState, setOpenState, onSuccess, setErr
 
     useEffect(() => {
         // Preload agents
+        const serverUrl = window._env_.REACT_APP_BACKEND_URL;
         async function getAgents() {
             try {
-                const res = await octokitClient.request('GET http://localhost:8000/api/v1/a/agents');
+                const res = await octokitClient.request(`GET ${serverUrl}a/agents`);
                 if (res.status === 200) {
                     const items = res.data.map(agent => (agent.agent_id));
                     setDropdownItems(items);
@@ -51,13 +52,15 @@ const Assistant = ({ mode, assistant, openState, setOpenState, onSuccess, setErr
     }, []);
 
     const upsertAssistant = async (mode) => {
+        const serverUrl = window._env_.REACT_APP_BACKEND_URL;
+
         let ed = (mode === "create" ? "created" : "updated");
         let ing = (mode === "create" ? "creating" : "updating");
 
         try {
             const res = await octokitClient.request(
-                (mode === "create" ? "POST" : "PUT") + " http://localhost:8000/api/v1/a/assistants" + (mode === "edit" ? "/" + assistantId : ""), {
-                assistant_id: (mode === "create" ? assistantName.replace(/ /g, '-').toLowerCase() : assistantId),
+                (mode === "create" ? "POST " : "PUT ") + serverUrl + "a/assistants" + (mode === "edit" ? "/" + assistantId : ""), {
+                assistant_id: assistantId,
                 name: assistantName,
                 description: assistantDescription,
                 class_name: className,
@@ -93,6 +96,25 @@ const Assistant = ({ mode, assistant, openState, setOpenState, onSuccess, setErr
         }
     }
 
+    const checkAndBuildId = (e) => {
+        setEmpty(!e.target.value);
+        setAssistantName(e.target.value);
+        if (mode === "create") {
+            let value = e.target.value.replace(/[^a-zA-Z0-9_À-ÿ]/g, '_').toLowerCase();
+            let unique = true;
+            do {
+                unique = assistants.filter((t) => t.assistant_id === value).length === 0;
+
+                if (unique) {
+                    setAssistantId(value);
+                    break;
+                }
+                value += "_";
+            }
+            while (!unique)
+        }
+    }
+
     return (
         <Modal open={openState}
             onRequestClose={() => setOpenState(false)}
@@ -114,7 +136,7 @@ const Assistant = ({ mode, assistant, openState, setOpenState, onSuccess, setErr
                 invalid={empty}
                 invalidText="This field cannot be empty"
                 value={assistantName}
-                onChange={(e) => { setEmpty(!e.target.value); setAssistantName(e.target.value) }} />
+                onChange={checkAndBuildId} />
             <div style={{ display: 'flex', alignItems: 'center', marginTop: '1rem' }} />
 
             <TextArea id="text-area-1"

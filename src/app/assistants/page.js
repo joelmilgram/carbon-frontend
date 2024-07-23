@@ -22,9 +22,16 @@ function AssistantsPage() {
   }, []);
 
   const getAssistants = async () => {
+    if (!window._env_) {
+      var script = document.createElement("script");
+      script.src = "../env-config.js";
+      script.async = true;
+      document.head.appendChild(script);
+    }
+    const serverUrl = window._env_.REACT_APP_BACKEND_URL;
     try {
       const res = await octokitClient.request(
-        'GET http://localhost:8000/api/v1/a/assistants',
+        `GET ${serverUrl}a/assistants`,
         {
           //per_page: 75,
           //sort: 'updated',
@@ -61,7 +68,7 @@ function AssistantsPage() {
       </Column>
       <Column lg={16} md={8} sm={4} className="landing-page__banner">
         <Button renderIcon={Add} iconDescription="Add Assistant" onClick={() => setOpen(true)}>Add Assistant</Button>
-        <Assistant mode="create" openState={open} setOpenState={setOpen} onSuccess={reloadAssistants} setError={setError} />
+        <Assistant mode="create" assistants={rows} openState={open} setOpenState={setOpen} onSuccess={reloadAssistants} setError={setError} />
       </Column>
 
       {loading && (

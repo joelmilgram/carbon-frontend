@@ -22,9 +22,16 @@ function PromptsPage() {
   }, []);
 
   const getPrompts = async () => {
+    if (!window._env_) {
+      var script = document.createElement("script");
+      script.src = "../env-config.js";
+      script.async = true;
+      document.head.appendChild(script);
+    }
+    const serverUrl = window._env_.REACT_APP_BACKEND_URL;
     try {
       const res = await octokitClient.request(
-        'GET http://localhost:8000/api/v1/a/prompts');
+        `GET ${serverUrl}a/prompts`);
 
       if (res.status === 200) {
         setRows(res.data);

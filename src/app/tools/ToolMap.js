@@ -11,9 +11,10 @@ export const ToolMap = ({ rows, setRows, setError, reloadTools }) => {
     const [editTool, setEditTool] = useState(-1);
 
     const deleteTool = async (index) => {
+        const serverUrl = window._env_.REACT_APP_BACKEND_URL;
         try {
             const res = await octokitClient.request(
-                `DELETE http://localhost:8000/api/v1/a/tools/${rows[index].tool_id}`
+                `DELETE ${serverUrl}a/tools/${rows[index].tool_id}`
             );
             if (res.status === 200) {
                 console.log('Tool deleted', res.data);
@@ -48,7 +49,7 @@ export const ToolMap = ({ rows, setRows, setError, reloadTools }) => {
                 <Tool mode="edit" tool={rows[editTool]} tools={rows} openState={open} setOpenState={setOpen} onSuccess={endEdition} setError={setError} />
             )}
             {rows.map((row, i) => (<Column key={i} lg={3} md={2} sm={2} >
-                <AspectRatio className="card" ratio="4x3">
+                <AspectRatio className="card" ratio="4x3" onDoubleClick={() => startEdition(i)}>
                     <div className="card-header" >
                         <Tools style={{ padding: "0.5rem" }} />
                         <OverflowMenu className="card-menu">
@@ -56,6 +57,7 @@ export const ToolMap = ({ rows, setRows, setError, reloadTools }) => {
                             <OverflowMenuItem hasDivider isDelete itemText="Delete" onClick={() => deleteTool(i)} />
                         </OverflowMenu>
                     </div>
+                    <div className="card-name">{row.tool_name}</div>
                     <div className="card-id">{row.tool_id}</div>
                     <div className="card-label">Function name:</div>
                     <div className="card-name">{row.tool_fct_name}</div>

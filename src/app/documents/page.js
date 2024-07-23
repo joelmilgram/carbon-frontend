@@ -20,8 +20,15 @@ function DocumentsPage() {
   const [open, setOpen] = useState(false);
 
   const getDocuments = async () => {
+    if (!window._env_) {
+      var script = document.createElement("script");
+      script.src = "../env-config.js";
+      script.async = true;
+      document.head.appendChild(script);
+    }
+    const serverUrl = window._env_.REACT_APP_BACKEND_URL;
     try {
-      const res = await octokitClient.request('GET http://localhost:8000/api/v1/a/documents/' + query);
+      const res = await octokitClient.request(`GET ${serverUrl}a/documents/${query}`);
 
       if (res.status === 200) {
         setRows(res.data);
@@ -53,6 +60,14 @@ function DocumentsPage() {
   }
 
   const uploadFile = async () => {
+    if (!window._env_) {
+      var script = document.createElement("script");
+      script.src = "../env-config.js";
+      script.async = true;
+      document.head.appendChild(script);
+    }
+    const serverUrl = window._env_.REACT_APP_BACKEND_URL;
+
     const formData = new FormData();
     formData.append('myFile', file);
     formData.append('name', file.name);
@@ -61,7 +76,7 @@ function DocumentsPage() {
     formData.append('file_name', file.name);
 
     try {
-      const response = await fetch('http://localhost:8000/api/v1/a/documents/', {
+      const response = await fetch(`${serverUrl}a/documents/`, {
         method: 'POST',
         body: formData,
       });
@@ -80,6 +95,14 @@ function DocumentsPage() {
   }
 
   const uploadFile2 = async () => {
+    if (!window._env_) {
+      var script = document.createElement("script");
+      script.src = "../env-config.js";
+      script.async = true;
+      document.head.appendChild(script);
+    }
+    const serverUrl = window._env_.REACT_APP_BACKEND_URL;
+
     if (!file) {
       setError('No file selected');
       return;
@@ -106,7 +129,7 @@ function DocumentsPage() {
     }
 
     try {
-      const res = await octokitClient.request('POST http://localhost:8000/api/v1/a/documents/', {
+      const res = await octokitClient.request(`POST ${serverUrl}a/documents/`, {
         body: formData,
       });
 

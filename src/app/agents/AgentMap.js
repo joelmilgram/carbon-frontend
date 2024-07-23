@@ -46,9 +46,10 @@ export const AgentMap = ({ rows, setRows, setError, reloadAgents }) => {
     }
 
     const deleteAgent = async (index) => {
+        const serverUrl = window._env_.REACT_APP_BACKEND_URL;
         try {
             const res = await octokitClient.request(
-                `DELETE http://localhost:8000/api/v1/a/agents/${rows[index].agent_id}`
+                `DELETE ${serverUrl}a/agents/${rows[index].agent_id}`
             );
             if (res.status === 200) {
                 console.log('Agent deleted', res.data);
@@ -80,10 +81,10 @@ export const AgentMap = ({ rows, setRows, setError, reloadAgents }) => {
     return (
         <>
             {(editAgent !== -1) && (
-                <Agent mode="edit" agent={rows[editAgent]} openState={open} setOpenState={setOpen} onSuccess={endEdition} setError={setError} />
+                <Agent mode="edit" agent={rows[editAgent]} agents={rows} openState={open} setOpenState={setOpen} onSuccess={endEdition} setError={setError} />
             )}
             {rows.map((row, i) => (<Column key={i} lg={3} md={2} sm={2} >
-                <AspectRatio className="card" ratio="4x3">
+                <AspectRatio className="card" ratio="4x3" onDoubleClick={() => startEdition(i)}>
                     <div className="card-header" >
                         <WatsonxData style={{ padding: "0.5rem" }} />
                         <OverflowMenu className="card-menu">

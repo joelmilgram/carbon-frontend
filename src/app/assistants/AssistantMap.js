@@ -4,15 +4,19 @@ import { QuestionAndAnswer } from '@carbon/pictograms-react';
 import { Close } from '@carbon/react/icons';
 import { Octokit } from '@octokit/core';
 import Assistant from './Assistant';
+import OwlAgent from './OwlAgent';
 
 const octokitClient = new Octokit({});
 
 export const AssistantMap = ({ rows, setRows, setError, reloadAssistants }) => {
+    const serverUrl = window._env_.REACT_APP_BACKEND_URL;
     const [loading, setLoading] = useState(true);
     const [agents, setAgents] = useState([]);
     const [openPopoverTable, setOpenPopoverTable] = useState([]); // Double entry: row x agents per row
     const [editAssistant, setEditAssistant] = useState(-1);
-    const [open, setOpen] = useState(false);
+    const [openEditAssistant, setOpenEditAssistant] = useState(false);
+    const [owlAgent, setOwlAgent] = useState(-1);
+    const [openOwlAgent, setOpenOwlAgent] = useState(false);
 
     useEffect(() => {
         let tab = new Array(rows.length).fill([]);
@@ -24,7 +28,7 @@ export const AssistantMap = ({ rows, setRows, setError, reloadAssistants }) => {
         // Preload agents
         async function getAgents() {
             try {
-                const res = await octokitClient.request('GET http://localhost:8000/api/v1/a/agents');
+                const res = await octokitClient.request(`GET ${serverUrl}a/agents`);
                 if (res.status === 200) {
                     setAgents(res.data);
                 } else {
@@ -59,7 +63,7 @@ export const AssistantMap = ({ rows, setRows, setError, reloadAssistants }) => {
     const deleteAssistant = async (index) => {
         try {
             const res = await octokitClient.request(
-                `DELETE http://localhost:8000/api/v1/a/assistants/${rows[index].assistant_id}`
+                `DELETE ${serverUrl}a/assistants/${rows[index].assistant_id}`
             );
             if (res.status === 200) {
                 console.log('Assistant deleted', res.data);
@@ -80,7 +84,7 @@ export const AssistantMap = ({ rows, setRows, setError, reloadAssistants }) => {
 
     const startEdition = (index) => {
         setEditAssistant(index);
-        setOpen(true);
+        setOpenEditAssistant(true);
     }
 
     const endEdition = () => {
@@ -88,18 +92,30 @@ export const AssistantMap = ({ rows, setRows, setError, reloadAssistants }) => {
         reloadAssistants();
     }
 
+    const startOwlAgent = (index) => {
+        setOwlAgent(index);
+        setOpenOwlAgent(true);
+    }
+
+    const endOwlAgent = () => {
+        setOwlAgent(-1);
+    }
+
     return (
         <>
+            {(owlAgent !== -1) && (
+                <OwlAgent assistant={rows[owlAgent]} openState={openOwlAgent} setOpenState={setOpenOwlAgent} />
+            )}
             {(editAssistant !== -1) && (
-                <Assistant mode="edit" assistant={rows[editAssistant]} openState={open} setOpenState={setOpen} onSuccess={endEdition} setError={setError} />
+                <Assistant mode="edit" assistant={rows[editAssistant]} assistants={rows} openState={openEditAssistant} setOpenState={setOpenEditAssistant} onSuccess={endEdition} setError={setError} />
             )}
             {rows.map((row, i) => (<Column key={i} lg={3} md={2} sm={2} >
-                <AspectRatio className="card" ratio="4x3">
+                <AspectRatio className="card" ratio="4x3" onDoubleClick={() => startEdition(i)}>
                     <div className="card-header" >
-                        <QuestionAndAnswer style={{ padding: "0.5rem" }} />
+                        <QuestionAndAnswer style={{ padding: "0.5rem" }} onClick={() => startOwlAgent(i)} style={{ cursor: "pointer" }} />
                         <OverflowMenu className="card-menu" >
                             <OverflowMenuItem itemText="Edit" onClick={() => startEdition(i)} />
-                            <OverflowMenuItem itemText="Launch" onClick={() => alert(row.name)} />
+                            <OverflowMenuItem itemText="Launch" onClick={() => startOwlAgent(i)} />
                             <OverflowMenuItem hasDivider isDelete itemText="Delete" onClick={() => deleteAssistant(i)} />
                         </OverflowMenu>
                     </div>

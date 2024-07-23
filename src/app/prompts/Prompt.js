@@ -37,13 +37,14 @@ const Prompt = ({ mode, prompt, prompts, openState, setOpenState, onSuccess, set
     }, [prompt]);
 
     const upsertPrompt = async (mode, locale) => {
+        const serverUrl = window._env_.REACT_APP_BACKEND_URL;
         let ed = (mode === "create" ? "created" : "updated");
         let ing = (mode === "create" ? "creating" : "updating");
 
         try {
             const res = await octokitClient.request(
-                (mode === "create" ? "POST" : "PUT") + " http://localhost:8000/api/v1/a/prompts", {
-                "prompt_key": promptKey,
+                (mode === "create" ? "POST " : "PUT ") + serverUrl + "a/prompts", {
+                "prompt_key": promptKey.replace(/[^a-zA-Z0-9_À-ÿ]/g, '_').toLowerCase(),
                 "prompt_locale": locale,
                 "prompt_content": promptContent[locale]
             });
@@ -100,16 +101,8 @@ const Prompt = ({ mode, prompt, prompts, openState, setOpenState, onSuccess, set
         setOpenState(false);
     }
 
-    const validateInput = (e) => {
-        setStart(e.target.selectionStart);
-        setEnd(e.target.selectionEnd);
-        const value = e.target.value.trim().replace(/ /g, '_');
-        setInvalid(!value);
-        const unique = prompts.filter(p => p.name === promptKey).length === 0;
-        if (unique) {
-            setInvalid(false);
-        }
-        setPromptKey(value);
+    const checkValidity = (e) => {
+        setInvalid(!promptKey || prompts.filter(p => p.name === e.target.value).length !== 0);
     }
 
     return (
@@ -135,8 +128,8 @@ const Prompt = ({ mode, prompt, prompts, openState, setOpenState, onSuccess, set
                 invalidText="This field cannot be empty and must be unique among the tools."
                 value={promptKey}
                 ref={ref}
-                onChange={(e) => validateInput(e)}
-                onKeyUp={() => { ref.current.setSelectionRange(start, end); }} />
+                onKeyUp={checkValidity}
+                onChange={(e) => setPromptKey(e.target.value)} />
             <div style={{ display: 'flex', alignItems: 'center', marginTop: '1rem' }} />
 
             <TextArea id="text-area-1"

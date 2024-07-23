@@ -7,36 +7,35 @@ const octokitClient = new Octokit({});
 
 const Tool = ({ mode, tool, tools, openState, setOpenState, onSuccess, setError }) => {
     // mode = 'create' or 'edit'
-    const [invalid, setInvalid] = useState(false);
+    const [empty, setEmpty] = useState(false)
     const [toolId, setToolId] = useState("");
+    const [toolName, setToolName] = useState("");
     const [toolDescription, setToolDescription] = useState("");
     const [toolClassName, setToolClassName] = useState("ibu.llm.tools.client_tools");
     const [toolFctName, setToolFctName] = useState("");
     const [toolArgSchemaClass, setToolArgSchemaClass] = useState(null);
 
-    const ref = useRef(null);
-    const [start, setStart] = useState(0);
-    const [end, setEnd] = useState(0);
-
     useEffect(() => {
         if (mode === 'edit') {
             setToolId(tool.tool_id);
+            setToolName(tool.tool_name);
             setToolDescription(tool.tool_description);
             setToolClassName(tool.tool_class_name);
             setToolFctName(tool.tool_fct_name);
             setToolArgSchemaClass(tool.tool_arg_schema_class);
         }
-        setInvalid(false);
     }, [tool]);
 
     const upsertTool = async (mode) => {
+        const serverUrl = window._env_.REACT_APP_BACKEND_URL;
         let ed = (mode === "create" ? "created" : "updated");
         let ing = (mode === "create" ? "creating" : "updating");
 
         try {
             const res = await octokitClient.request(
-                (mode === "create" ? "POST" : "PUT") + " http://localhost:8000/api/v1/a/tools" + (mode === "edit" ? "/" + toolId : ""), {
+                (mode === "create" ? "POST " : "PUT ") + serverUrl + "a/tools" + (mode === "edit" ? "/" + tool.tool_id : ""), {
                 tool_id: toolId,
+                tool_name: toolName,
                 tool_description: toolDescription,
                 tool_class_name: toolClassName,
                 tool_fct_name: toolFctName,
@@ -58,41 +57,45 @@ const Tool = ({ mode, tool, tools, openState, setOpenState, onSuccess, setError 
     }
 
     const onRequestSubmit = () => {
-        if (!toolId) {
-            setInvalid(true);
+        if (!toolName) {
+            setEmpty(true);
         } else {
-            const unique = tools.filter((t) => t.tool_id === toolId).length === 0;
-            if (unique) {
-                setInvalid(true);
-            } else {
-                upsertTool(mode);
-                setToolId("");
-                setToolDescription("");
-                setToolClassName("ibu.llm.tools.client_tools");
-                setToolFctName("");
-                setToolArgSchemaClass(null);
+            upsertTool(mode);
 
-                setOpenState(false);
-            }
+            setToolId("");
+            setToolName("");
+            setToolDescription("");
+            setToolClassName("ibu.llm.tools.client_tools");
+            setToolFctName("");
+            setToolArgSchemaClass(null);
+
+            setOpenState(false);
         }
     }
 
-    const validateInput = (e) => {
-        setStart(e.target.selectionStart);
-        setEnd(e.target.selectionEnd);
-        const value = e.target.value.replace(/ /g, '_');
-        setInvalid(!value);
-        const unique = tools.filter((t) => t.tool_id === toolId).length === 0;
-        if (unique) {
-            setInvalid(true);
+    const checkAndBuildId = (e) => {
+        setEmpty(!e.target.value);
+        setToolName(e.target.value);
+        if (mode === "create") {
+            let value = e.target.value.replace(/[^a-zA-Z0-9_À-ÿ]/g, '_').toLowerCase();
+            let unique = true;
+            do {
+                unique = tools.filter((t) => t.tool_id === value).length === 0;
+
+                if (unique) {
+                    setToolId(value);
+                    break;
+                }
+                value += "_";
+            }
+            while (!unique)
         }
-        setToolId(value);
     }
 
     return (
         <Modal open={openState}
             onRequestClose={() => setOpenState(false)}
-            modalHeading={(mode == "create" ? "Create a new tool" : "Update tool " + toolId)}
+            modalHeading={(mode == "create" ? "Create a new tool" : "Update tool " + tool.tool_id)}
             modalLabel="Tools"
             primaryButtonText={(mode == "create" ? "Add" : "Update")}
             secondaryButtonText="Cancel"
@@ -104,15 +107,13 @@ const Tool = ({ mode, tool, tools, openState, setOpenState, onSuccess, setError 
             </p>
             <Tools style={{ width: '5rem', height: 'auto', padding: "0.5rem" }} />
 
-            <TextInput data-modal-primary-focus id="text-input-1"
-                labelText="Tool Id"
-                placeholder="e.g. get_contract_by_contract_number, don't use spaces."
-                invalid={invalid}
-                invalidText="This field cannot be empty and must be unique among the tools."
-                value={toolId}
-                ref={ref}
-                onChange={(e) => validateInput(e)}
-                onKeyUp={(e) => { ref.current.setSelectionRange(start, end); }} />
+            <TextInput data-modal-primary-focus id="text-input-tool-name"
+                labelText="Tool Name"
+                placeholder="e.g. Get Contract by Number."
+                invalid={empty}
+                invalidText="This field cannot be empty"
+                value={toolName}
+                onChange={checkAndBuildId} />
             <div style={{ display: 'flex', alignItems: 'center', marginTop: '1rem' }} />
 
             <TextInput id="text-input-2"

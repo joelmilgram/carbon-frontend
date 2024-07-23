@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { AspectRatio, Column, OverflowMenu, OverflowMenuItem, Popover, PopoverContent, IconButton } from '@carbon/react';
 import { Documentation } from '@carbon/pictograms-react';
-import { Close } from '@carbon/react/icons';
 
 export const DocumentMap = ({ rows }) => {
     const [openPopoverTable, setOpenPopoverTable] = useState([]);
