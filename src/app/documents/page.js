@@ -1,8 +1,8 @@
 'use client';
 
-import { Breadcrumb, BreadcrumbItem, Button, Column, FileUploaderDropContainer, FileUploaderItem, Grid, SkeletonText, TextInput, ToastNotification } from '@carbon/react';
+import { Breadcrumb, BreadcrumbItem, Button, Column, FileUploaderDropContainer, FileUploaderItem, Grid, InlineNotification, Row, SkeletonText, TextInput, ToastNotification } from '@carbon/react';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Octokit } from '@octokit/core';
 import DocumentMap from './DocumentMap';
 import { Add, Search } from '@carbon/react/icons';
@@ -13,11 +13,16 @@ function DocumentsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState();
   const [file, setFile] = useState();
+  const [uploadStatus, setUploadStatus] = useState(null);
   const [query, setQuery] = useState('');
   const [empty, setEmpty] = useState(false);
   const [rows, setRows] = useState([]);
 
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    console.log('uploadStatus:', uploadStatus);
+  }, [uploadStatus]);
 
   const getDocuments = async () => {
     if (!window._env_) {
@@ -85,63 +90,14 @@ function DocumentsPage() {
         console.log('Upload successful');
         const responseBody = await response.json();
         console.log('Response Body:', responseBody);
-
+        setUploadStatus({ kind: "success", text: file.name + ' uploaded' });
+        setFile();
       } else {
+        setUploadStatus({ kind: "error", text: file.name + ' NOT uploaded. ' + response.statusText });
         console.error('Upload failed', response.statusText);
       }
     } catch (error) {
       console.error('Error uploading document:', error);
-    }
-  }
-
-  const uploadFile2 = async () => {
-    if (!window._env_) {
-      var script = document.createElement("script");
-      script.src = "../env-config.js";
-      script.async = true;
-      document.head.appendChild(script);
-    }
-    const serverUrl = window._env_.REACT_APP_BACKEND_URL;
-
-    if (!file) {
-      setError('No file selected');
-      return;
-    }
-
-    const formData = new FormData();
-    const blob = new Blob([fileContent], { type: contentType });
-
-    formData.append('myFile', file, {
-      contentType,
-      filename: file.name,
-    });
-    formData.append('name', file.name);
-    formData.append('description', '');
-    formData.append('type', 'text');
-    formData.append('file_name', file.name);
-    //formData.append('file_base_uri', '');
-
-    for (let [key, value] of formData.entries()) {
-      if (key === 'myFile') {
-        console.log(`${key}:`, JSON.stringify(value.name, 0, 2), value.type);
-      }
-      console.log(`${key}:`, value);
-    }
-
-    try {
-      const res = await octokitClient.request(`POST ${serverUrl}a/documents/`, {
-        body: formData,
-      });
-
-      if (res.status === 201) {
-        console.log('Document uploaded', res.data);
-        searchDocuments();
-      } else {
-        setError('Error uploading document (' + res.status + ')');
-      }
-    } catch (error) {
-      setError('Error uploading document:' + error.message);
-      console.error('Error uploading document:' + error.message);
     }
   }
 
@@ -156,19 +112,34 @@ function DocumentsPage() {
         <h1 className="landing-page__heading">Documents</h1>
       </Column>
 
-      <Column lg={16} md={8} sm={4} className="landing-page__banner">
+      <Column lg={4} md={3} sm={2} className="upload-area">
         <FileUploaderDropContainer name="fileUploader"
           labelText="Drag and drop files here or click to upload"
           multiple={false}
           accept={['text/plain', 'text/html', 'text/markdown', 'application/pdf']}
           onAddFiles={updateFile} />
+      </Column>
+      <Column lg={4} md={3} sm={1} className="upload-area">
         {file && <FileUploaderItem name={file.name} status="edit"
           iconDescription="Delete file"
           onDelete={() => setFile()}
           errorBody="500kb max file size. Select a new file and try again."
           errorSubject="File size exceeds limit" invalid={false} />}
-
-        <Button renderIcon={Add} iconDescription="Add Document" onClick={() => uploadFile()}>Add Document</Button>
+      </Column>
+      <Column lg={8} md={2} sm={1} className="upload-area">
+        {file && <Button kind="tertiary" renderIcon={Add} iconDescription="Add Document" onClick={() => uploadFile()}>Add Document</Button>}
+      </Column>
+      <Column lg={16} md={8} sm={4} className="upload-area">
+        {uploadStatus && (
+          <InlineNotification
+            aria-label="closes notification"
+            kind={uploadStatus.kind}
+            onClose={() => setUploadStatus(null)}
+            onCloseButtonClick={() => setUploadStatus(null)}
+            statusIconDescription="notification"
+            subtitle={uploadStatus.text}
+            title="Upload file: "
+          />)}
       </Column>
 
       <Column lg={16} md={8} sm={4}>
@@ -179,7 +150,8 @@ function DocumentsPage() {
           invalid={empty}
           invalidText="This field cannot be empty"
           value={query}
-          onChange={(e) => { setEmpty(!e.target.value); setQuery(e.target.value.trim()) }} />
+          onChange={(e) => { setEmpty(!e.target.value); setQuery(e.target.value.trim()) }}
+          onKeyDown={(e) => { if (e.key === 'Enter') searchDocuments(); }} />
         <Button renderIcon={Search} disabled={empty} iconDescription="Search" onClick={() => searchDocuments()}>Search</Button>
         <div style={{ display: 'flex', alignItems: 'center', marginTop: '1rem' }} />
       </Column>

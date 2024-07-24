@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Modal } from '@carbon/react';
+import { Modal, TextArea } from '@carbon/react';
 import { QuestionAndAnswer } from '@carbon/pictograms-react';
 import { ChatBot, UserAvatar, Send } from "@carbon/react/icons";
 import loadingImage from "../assets/loading.gif";
 
-const OwlAgent = ({ assistant, openState, setOpenState }) => {
+const OwlAgent = ({ assistant, openState, setOpenState, randomNumber }) => {
     // Ref for scrolling to the end of messages
     const msgEnd = useRef(null);
 
@@ -20,6 +20,14 @@ const OwlAgent = ({ assistant, openState, setOpenState }) => {
     const [threadId, setThreadId] = useState(null);
     const [userId, setUserId] = useState("");
     const serverUrl = window._env_.REACT_APP_BACKEND_URL;
+
+    const inputRef = useRef(null);
+
+    useEffect(() => {
+        if (inputRef.current) {
+            inputRef.current.focus();
+        }
+    }, [randomNumber]);
 
     useEffect(() => {
         // Random user id
@@ -143,7 +151,6 @@ const OwlAgent = ({ assistant, openState, setOpenState }) => {
             modalHeading={"Owl Agent - " + assistant.name + " (" + assistant.assistant_id + ")"}
             passiveModal
             size='lg'
-            primaryButtonText="Close"
             preventCloseOnClickOutside
             hasScrollingContent>
 
@@ -182,7 +189,7 @@ const OwlAgent = ({ assistant, openState, setOpenState }) => {
             </div>
             <hr className="horizontal-line" />
             <div className="owl-agent-input">
-                <textarea
+                <TextArea ref={inputRef}
                     placeholder="Enter your message here"
                     value={input}
                     rows={3}

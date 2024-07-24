@@ -1,7 +1,7 @@
 'use client';
 
 import { Content, Theme } from '@carbon/react';
-import OwlAgentHeader from '@/components/OwlAgentHeader/OwlAgentHeader';
+import OwlAgentHeader from './home/OwlAgentHeader';
 
 export function Providers({ children }) {
   return (

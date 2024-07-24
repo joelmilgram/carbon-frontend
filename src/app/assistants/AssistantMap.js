@@ -104,7 +104,7 @@ export const AssistantMap = ({ rows, setRows, setError, reloadAssistants }) => {
     return (
         <>
             {(owlAgent !== -1) && (
-                <OwlAgent assistant={rows[owlAgent]} openState={openOwlAgent} setOpenState={setOpenOwlAgent} />
+                <OwlAgent assistant={rows[owlAgent]} openState={openOwlAgent} setOpenState={setOpenOwlAgent} randomNumber={Math.random()} />
             )}
             {(editAssistant !== -1) && (
                 <Assistant mode="edit" assistant={rows[editAssistant]} assistants={rows} openState={openEditAssistant} setOpenState={setOpenEditAssistant} onSuccess={endEdition} setError={setError} />
